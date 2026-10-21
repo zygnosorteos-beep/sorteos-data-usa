@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zygno USA - Data Service</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
+            border: 1px solid #334155;
+        }
+        h1 { color: #f59e0b; margin-bottom: 0.5rem; font-size: 1.8rem; }
+        p { color: #94a3b8; font-size: 0.95rem; }
+        .endpoints {
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+        .endpoint-item {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .endpoint-item a {
+            color: #38bdf8;
+            text-decoration: none;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        .badge {
+            background: #10b981;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🎰 Zygno USA Data Hub</h1>
+        <p>Live endpoint service providing official historical lottery draw results.</p>
+        <div class="endpoints">
+            <div class="endpoint-item">
+                <a href="resultados_powerball.json" target="_blank">resultados_powerball.json</a>
+                <span class="badge">POWERBALL</span>
+            </div>
+            <div class="endpoint-item">
+                <a href="resultados_texas_cash_five.json" target="_blank">resultados_texas_cash_five.json</a>
+                <span class="badge">TEXAS CASH 5</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
