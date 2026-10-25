@@ -1,8 +1,9 @@
-name: Zygno USA Data Transformer
+name: Zygno Sorteos Data Transformer (Mexico & USA)
 
 on:
   push:
     paths:
+      - 'raw_csv/**'
       - 'raw_csv_usa/**'
   workflow_dispatch:
 
@@ -16,12 +17,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Exportar Sorteos USA a JSON
+      - name: Exportar Sorteos Mexico y USA a JSON
         run: python exportar_sorteos_usa.py
       - name: Commit y Push
         run: |
-          git config --global user.name 'Zygno USA Bot'
-          git config --global user.email 'bot@zygnousa.com'
+          git config --global user.name 'Zygno Bot'
+          git config --global user.email 'bot@zygnosorteos.com'
           git add docs/*.json
-          git commit -m "Auto-update USA Lottery JSONs: $(date)" || echo "Sin cambios"
+          git commit -m "Auto-update Sorteos JSONs (Mexico & USA): $(date)" || echo "Sin cambios"
           git push

@@ -22,16 +22,18 @@ def parse_date(date_str):
             pass
     return None
 
-def procesar_sorteos_usa():
+def procesar_todos_sorteos():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    INPUT_DIR = os.path.join(BASE_DIR, 'raw_csv_usa')
+    INPUT_USA = os.path.join(BASE_DIR, 'raw_csv_usa')
+    INPUT_MEX = os.path.join(BASE_DIR, 'raw_csv')
     OUTPUT_DIR = os.path.join(BASE_DIR, 'docs')
 
-    if not os.path.exists(OUTPUT_DIR):
-        os.makedirs(OUTPUT_DIR)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # 1. Procesar Texas Cash Five
-    csv_texas = os.path.join(INPUT_DIR, 'texas_cash_five.csv')
+    # ==========================================
+    # 1. Procesar Texas Cash Five (USA)
+    # ==========================================
+    csv_texas = os.path.join(INPUT_USA, 'texas_cash_five.csv')
     if os.path.exists(csv_texas):
         try:
             records = []
@@ -40,16 +42,10 @@ def procesar_sorteos_usa():
                 for row in reader:
                     if not row or len(row) < 9:
                         continue
-                    
-                    # Detectar si es cabecera
                     if 'FECHA' in str(row[0]).upper() or 'CONCURSO' in str(row[0]).upper():
                         continue
-                    
-                    # Formato oficial Texas Lottery: Cash Five,Month,Day,Year,N1,N2,N3,N4,N5
                     try:
-                        month = int(row[1])
-                        day = int(row[2])
-                        year = int(row[3])
+                        month, day, year = int(row[1]), int(row[2]), int(row[3])
                         d_obj = datetime(year, month, day)
                         date_iso = d_obj.strftime('%Y-%m-%d')
                         id_concurso = int(d_obj.strftime('%Y%m%d'))
@@ -67,19 +63,17 @@ def procesar_sorteos_usa():
 
             records.sort(key=lambda x: x['date_obj'], reverse=True)
             json_texas = [r['data'] for r in records]
-
             out_tx = os.path.join(OUTPUT_DIR, 'resultados_texas_cash_five.json')
             with open(out_tx, 'w', encoding='utf-8') as f:
                 json.dump(json_texas, f, ensure_ascii=False, indent=2)
-
-            print(f"[OK] Generado correctamente: {out_tx} ({len(json_texas)} sorteos)")
+            print(f"[OK] Generado: {out_tx} ({len(json_texas)} sorteos)")
         except Exception as e:
             print(f"[ERROR] Error procesando Texas Cash Five: {e}")
-    else:
-        print(f"[AVISO] No se encontro: {csv_texas}")
 
-    # 2. Procesar Powerball
-    csv_pb = os.path.join(INPUT_DIR, 'powerball.csv')
+    # ==========================================
+    # 2. Procesar Powerball (USA)
+    # ==========================================
+    csv_pb = os.path.join(INPUT_USA, 'powerball.csv')
     if os.path.exists(csv_pb):
         try:
             records = []
@@ -88,16 +82,10 @@ def procesar_sorteos_usa():
                 for row in reader:
                     if not row or len(row) < 10:
                         continue
-                    
-                    # Detectar cabecera
                     if 'FECHA' in str(row[0]).upper() or 'CONCURSO' in str(row[0]).upper():
                         continue
-
-                    # Formato oficial Texas Lottery: Powerball,Month,Day,Year,N1,N2,N3,N4,N5,PB,PowerPlay
                     try:
-                        month = int(row[1])
-                        day = int(row[2])
-                        year = int(row[3])
+                        month, day, year = int(row[1]), int(row[2]), int(row[3])
                         d_obj = datetime(year, month, day)
                         date_iso = d_obj.strftime('%Y-%m-%d')
                         id_concurso = int(d_obj.strftime('%Y%m%d'))
@@ -117,16 +105,109 @@ def procesar_sorteos_usa():
 
             records.sort(key=lambda x: x['date_obj'], reverse=True)
             json_pb = [r['data'] for r in records]
-
             out_pb = os.path.join(OUTPUT_DIR, 'resultados_powerball.json')
             with open(out_pb, 'w', encoding='utf-8') as f:
                 json.dump(json_pb, f, ensure_ascii=False, indent=2)
-
-            print(f"[OK] Generado correctamente: {out_pb} ({len(json_pb)} sorteos)")
+            print(f"[OK] Generado: {out_pb} ({len(json_pb)} sorteos)")
         except Exception as e:
             print(f"[ERROR] Error procesando Powerball: {e}")
-    else:
-        print(f"[AVISO] No se encontro: {csv_pb}")
+
+    # ==========================================
+    # 3. Procesar Chispazo (México)
+    # ==========================================
+    csv_chispazo = os.path.join(INPUT_MEX, 'Chispazo.csv')
+    if os.path.exists(csv_chispazo):
+        try:
+            items = []
+            with open(csv_chispazo, 'r', encoding='latin-1') as f:
+                reader = csv.DictReader(f)
+                for r in reader:
+                    try:
+                        concurso = int(r['CONCURSO'])
+                        d_obj = parse_date(r['FECHA'])
+                        fecha_iso = d_obj.strftime('%Y-%m-%d') if d_obj else str(r['FECHA'])
+                        nums = [int(r['R1']), int(r['R2']), int(r['R3']), int(r['R4']), int(r['R5'])]
+                        items.append({
+                            "idConcurso": concurso,
+                            "fecha": fecha_iso,
+                            "numeros": nums
+                        })
+                    except Exception:
+                        continue
+
+            items.sort(key=lambda x: x['idConcurso'], reverse=True)
+            out_ch = os.path.join(OUTPUT_DIR, 'resultados_chispazo.json')
+            with open(out_ch, 'w', encoding='utf-8') as f:
+                json.dump(items, f, ensure_ascii=False, indent=2)
+            print(f"[OK] Generado: {out_ch} ({len(items)} sorteos)")
+        except Exception as e:
+            print(f"[ERROR] Error procesando Chispazo: {e}")
+
+    # ==========================================
+    # 4. Procesar Melate Retro (México)
+    # ==========================================
+    csv_retro = os.path.join(INPUT_MEX, 'melate_retro.csv')
+    if os.path.exists(csv_retro):
+        try:
+            items = []
+            with open(csv_retro, 'r', encoding='latin-1') as f:
+                reader = csv.DictReader(f)
+                for r in reader:
+                    try:
+                        concurso = int(r['CONCURSO'])
+                        d_obj = parse_date(r['FECHA'])
+                        fecha_iso = d_obj.strftime('%Y-%m-%d') if d_obj else str(r['FECHA'])
+                        nums = [int(r['F1']), int(r['F2']), int(r['F3']), int(r['F4']), int(r['F5']), int(r['F6'])]
+                        adicional = int(r['F7'])
+                        items.append({
+                            "idConcurso": concurso,
+                            "fecha": fecha_iso,
+                            "numeros": nums,
+                            "adicional": adicional
+                        })
+                    except Exception:
+                        continue
+
+            items.sort(key=lambda x: x['idConcurso'], reverse=True)
+            out_retro = os.path.join(OUTPUT_DIR, 'resultados_melate.json')
+            with open(out_retro, 'w', encoding='utf-8') as f:
+                json.dump(items, f, ensure_ascii=False, indent=2)
+            print(f"[OK] Generado: {out_retro} ({len(items)} sorteos)")
+        except Exception as e:
+            print(f"[ERROR] Error procesando Melate Retro: {e}")
+
+    # ==========================================
+    # 5. Procesar Melate Tradicional (Principal - México)
+    # ==========================================
+    csv_melate = os.path.join(INPUT_MEX, 'Melate.csv')
+    if os.path.exists(csv_melate):
+        try:
+            items = []
+            with open(csv_melate, 'r', encoding='latin-1') as f:
+                reader = csv.DictReader(f)
+                for r in reader:
+                    try:
+                        concurso = int(r['CONCURSO'])
+                        d_obj = parse_date(r['FECHA'])
+                        fecha_iso = d_obj.strftime('%Y-%m-%d') if d_obj else str(r['FECHA'])
+                        nums = [int(r['R1']), int(r['R2']), int(r['R3']), int(r['R4']), int(r['R5']), int(r['R6'])]
+                        adicional = int(r['R7'])
+                        items.append({
+                            "idConcurso": concurso,
+                            "fecha": fecha_iso,
+                            "numeros": nums,
+                            "adicional": adicional
+                        })
+                    except Exception:
+                        continue
+
+            items.sort(key=lambda x: x['idConcurso'], reverse=True)
+            out_melate = os.path.join(OUTPUT_DIR, 'resultados_melate_principal.json')
+            with open(out_melate, 'w', encoding='utf-8') as f:
+                json.dump(items, f, ensure_ascii=False, indent=2)
+            print(f"[OK] Generado: {out_melate} ({len(items)} sorteos)")
+        except Exception as e:
+            print(f"[ERROR] Error procesando Melate Principal: {e}")
 
 if __name__ == '__main__':
-    procesar_sorteos_usa()
+    procesar_todos_sorteos()
