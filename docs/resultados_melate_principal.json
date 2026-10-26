@@ -1,5 +1,18 @@
 [
   {
+    "idConcurso": 4283,
+    "fecha": "2026-10-25",
+    "numeros": [
+      20,
+      33,
+      35,
+      38,
+      45,
+      52
+    ],
+    "adicional": 5
+  },
+  {
     "idConcurso": 4282,
     "fecha": "2026-10-23",
     "numeros": [
