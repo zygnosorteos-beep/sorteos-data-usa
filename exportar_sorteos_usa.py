@@ -40,16 +40,29 @@ def procesar_todos_sorteos():
             with open(csv_texas, 'r', encoding='utf-8-sig') as f:
                 reader = csv.reader(f)
                 for row in reader:
-                    if not row or len(row) < 9:
+                    if not row:
                         continue
                     if 'FECHA' in str(row[0]).upper() or 'CONCURSO' in str(row[0]).upper():
                         continue
                     try:
-                        month, day, year = int(row[1]), int(row[2]), int(row[3])
-                        d_obj = datetime(year, month, day)
-                        date_iso = d_obj.strftime('%Y-%m-%d')
-                        id_concurso = int(d_obj.strftime('%Y%m%d'))
-                        nums = sorted([int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8])])
+                        # Caso normalizado: FECHA,N1,N2,N3,N4,N5
+                        if len(row) >= 6 and '-' in str(row[0]):
+                            d_obj = parse_date(row[0])
+                            if not d_obj:
+                                continue
+                            date_iso = d_obj.strftime('%Y-%m-%d')
+                            id_concurso = int(d_obj.strftime('%Y%m%d'))
+                            nums = sorted([int(row[1]), int(row[2]), int(row[3]), int(row[4]), int(row[5])])
+                        elif len(row) >= 9 and row[1].strip().isdigit():
+                            # Caso original: Cash Five, Month, Day, Year, Num1..5
+                            month, day, year = int(row[1]), int(row[2]), int(row[3])
+                            d_obj = datetime(year, month, day)
+                            date_iso = d_obj.strftime('%Y-%m-%d')
+                            id_concurso = int(d_obj.strftime('%Y%m%d'))
+                            nums = sorted([int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8])])
+                        else:
+                            continue
+
                         records.append({
                             'date_obj': d_obj,
                             'data': {
@@ -80,17 +93,31 @@ def procesar_todos_sorteos():
             with open(csv_pb, 'r', encoding='utf-8-sig') as f:
                 reader = csv.reader(f)
                 for row in reader:
-                    if not row or len(row) < 10:
+                    if not row:
                         continue
                     if 'FECHA' in str(row[0]).upper() or 'CONCURSO' in str(row[0]).upper():
                         continue
                     try:
-                        month, day, year = int(row[1]), int(row[2]), int(row[3])
-                        d_obj = datetime(year, month, day)
-                        date_iso = d_obj.strftime('%Y-%m-%d')
-                        id_concurso = int(d_obj.strftime('%Y%m%d'))
-                        nums = sorted([int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8])])
-                        pb = int(row[9])
+                        # Caso normalizado: FECHA,N1,N2,N3,N4,N5,POWERBALL,POWER_PLAY
+                        if len(row) >= 7 and '-' in str(row[0]):
+                            d_obj = parse_date(row[0])
+                            if not d_obj:
+                                continue
+                            date_iso = d_obj.strftime('%Y-%m-%d')
+                            id_concurso = int(d_obj.strftime('%Y%m%d'))
+                            nums = sorted([int(row[1]), int(row[2]), int(row[3]), int(row[4]), int(row[5])])
+                            pb = int(row[6])
+                        elif len(row) >= 10 and row[1].strip().isdigit():
+                            # Caso original: Powerball, Month, Day, Year, Num1..5, PB, PP
+                            month, day, year = int(row[1]), int(row[2]), int(row[3])
+                            d_obj = datetime(year, month, day)
+                            date_iso = d_obj.strftime('%Y-%m-%d')
+                            id_concurso = int(d_obj.strftime('%Y%m%d'))
+                            nums = sorted([int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8])])
+                            pb = int(row[9])
+                        else:
+                            continue
+
                         records.append({
                             'date_obj': d_obj,
                             'data': {
